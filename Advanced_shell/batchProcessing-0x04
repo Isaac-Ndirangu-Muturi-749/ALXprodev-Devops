@@ -48,13 +48,24 @@ fetch_pokemon_data() {
 
 # Function to handle the parallel fetching of Pokémon data
 fetch_pokemon_in_parallel() {
+    # Start the background processes for fetching data
     for pokemon in "${POKEMONS[@]}"; do
-        # Fetch Pokémon data in the background
         fetch_pokemon_data "$pokemon" &
+        # Keep track of the background process jobs
+        jobs
     done
 
     # Wait for all background processes to finish
     wait
+
+    # Check if any background process failed or is still running
+    if [[ $? -eq 0 ]]; then
+        echo "All data fetching processes completed successfully."
+    else
+        echo "One or more processes failed."
+        # Optionally, you can kill any remaining processes
+        jobs -p | xargs kill
+    fi
 }
 
 # Start fetching Pokémon data in parallel

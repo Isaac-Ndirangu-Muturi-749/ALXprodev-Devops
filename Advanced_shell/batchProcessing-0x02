@@ -5,7 +5,7 @@ OUTPUT_DIR="pokemon_data"
 ERROR_LOG="error_log.txt"
 
 # List of Pokémon
-POKEMONS=("Bulbasaur" "Ivysaur" "Venusaur" "Charmander" "Charmeleon")
+POKEMONS=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
 
 # Maximum number of retries
 MAX_RETRIES=3
