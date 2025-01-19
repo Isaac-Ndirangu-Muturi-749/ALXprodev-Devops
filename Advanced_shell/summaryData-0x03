@@ -35,6 +35,12 @@ for FILE in "$INPUT_DIR"/*.json; do
     fi
 done
 
+# Use sed to remove any blank lines in the CSV file (optional cleaning step)
+sed -i '/^$/d' "$OUTPUT_CSV"
+
+# Use sed to ensure consistent formatting (e.g., trim spaces around commas)
+sed -i 's/ *, */,/g' "$OUTPUT_CSV"
+
 # Calculate the average height and weight using awk
 echo "Calculating averages..."
 awk -F',' '
