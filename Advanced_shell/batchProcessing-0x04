@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Directory to store the JSON files
+OUTPUT_DIR="pokemon_data"
+ERROR_LOG="error_log.txt"
+
+# List of Pokémon
+POKEMONS=("Bulbasaur" "Ivysaur" "Venusaur" "Charmander" "Charmeleon")
+
+# Maximum number of retries
+MAX_RETRIES=3
+
+# Create output directory if it doesn't exist
+mkdir -p "$OUTPUT_DIR"
+
+# Clear error log if it exists
+> "$ERROR_LOG"
+
+# Function to fetch Pokémon data
+fetch_pokemon_data() {
+    local pokemon=$1
+    local retry_count=0
+    local success=false
+
+    while [[ $retry_count -lt $MAX_RETRIES ]]; do
+        # Make the API request
+        response=$(curl -s -w "%{http_code}" -o "$OUTPUT_DIR/$pokemon.json" "https://pokeapi.co/api/v2/pokemon/$pokemon")
+
+        # Extract the HTTP status code from the response
+        http_status="${response: -3}"
+
+        if [[ "$http_status" -eq 200 ]]; then
+            echo "Successfully fetched data for $pokemon."
+            success=true
+            break
+        else
+            echo "Error fetching $pokemon data. HTTP status: $http_status. Retrying..."
+            ((retry_count++))
+            sleep 2  # Add a delay before retrying
+        fi
+    done
+
+    if [[ $success == false ]]; then
+        echo "Failed to fetch data for $pokemon after $MAX_RETRIES attempts." >> "$ERROR_LOG"
+        rm -f "$OUTPUT_DIR/$pokemon.json"  # Clean up incomplete JSON file
+    fi
+}
+
+# Function to handle the parallel fetching of Pokémon data
+fetch_pokemon_in_parallel() {
+    for pokemon in "${POKEMONS[@]}"; do
+        # Fetch Pokémon data in the background
+        fetch_pokemon_data "$pokemon" &
+    done
+
+    # Wait for all background processes to finish
+    wait
+}
+
+# Start fetching Pokémon data in parallel
+fetch_pokemon_in_parallel
+
+# Summarize the results
+echo "Batch processing completed."
+if [[ -s $ERROR_LOG ]]; then
+    echo "Some errors occurred. Check the error log at $ERROR_LOG."
+else
+    echo "All Pokémon data fetched successfully."
+fi
