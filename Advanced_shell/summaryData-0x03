@@ -37,14 +37,19 @@ done
 
 # Calculate the average height and weight using awk
 echo "Calculating averages..."
-awk -F',' 'NR > 1 {height += $2; weight += $3; count++}
-    END {
-        if (count > 0) {
-            print "Average Height (m):", height / count;
-            print "Average Weight (kg):", weight / count;
-        } else {
-            print "No data available to calculate averages."
-        }
-    }' "$OUTPUT_CSV"
+awk -F',' '
+NR > 1 {
+    height += $2;
+    weight += $3;
+    count++;
+}
+END {
+    if (count > 0) {
+        printf "Average Height (m): %.2f\n", height / count;
+        printf "Average Weight (kg): %.2f\n", weight / count;
+    } else {
+        print "No data available to calculate averages.";
+    }
+}' "$OUTPUT_CSV"
 
 echo "Summary report generated: $OUTPUT_CSV"
