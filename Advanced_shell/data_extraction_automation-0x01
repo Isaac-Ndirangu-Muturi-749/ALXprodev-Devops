@@ -16,8 +16,11 @@ weight=$(jq -r '.weight' "$INPUT_FILE")
 type=$(jq -r '.types[0].type.name' "$INPUT_FILE")
 
 # Format the height and weight
-formatted_height=$(awk "BEGIN {print $height / 10}")
-formatted_weight=$(awk "BEGIN {print $weight / 10}")
+formatted_height=$(echo "$height" | awk '{print $1 / 10}')
+formatted_weight=$(echo "$weight" | awk '{print $1 / 10}')
 
-# Create the human-readable output
-echo "$name is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall."
+# Use sed to format the output string
+output=$(echo "$name is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall." | sed 's/$//')
+
+# Print the result
+echo "$output"
