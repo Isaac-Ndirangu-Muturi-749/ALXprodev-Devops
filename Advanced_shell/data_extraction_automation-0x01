@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Input file
+INPUT_FILE="data.json"
+
+# Check if the file exists
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "Error: $INPUT_FILE not found. Please run the API automation script first."
+    exit 1
+fi
+
+# Extract Pokémon data using jq
+NAME=$(jq -r '.name' "$INPUT_FILE")
+HEIGHT=$(jq -r '.height' "$INPUT_FILE")
+WEIGHT=$(jq -r '.weight' "$INPUT_FILE")
+TYPE=$(jq -r '.types[0].type.name' "$INPUT_FILE")
+
+# Format the height and weight
+HEIGHT_METERS=$(awk "BEGIN {print $HEIGHT / 10}")
+WEIGHT_KG=$(awk "BEGIN {print $WEIGHT / 10}")
+
+# Create the human-readable output
+OUTPUT="$(echo "$NAME" | sed 's/.*/\u&/') is of type $(echo "$TYPE" | sed 's/.*/\u&/'), weighs ${WEIGHT_KG}kg, and is ${HEIGHT_METERS}m tall."
+
+# Print the output
+echo "$OUTPUT"
